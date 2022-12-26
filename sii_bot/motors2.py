@@ -58,10 +58,14 @@ class Driver(rclpy.node.Node):
         # store parameters and current time, visible with command ros2 param list
         self._last_received = self.get_clock().now()
 
-        self._timeout = self.declare_parameter('~timeout', 2)
-        self._rate = self.declare_parameter('~rate', 2)
-        self._max_speed = self.declare_parameter('~max_speed', 0.5)
-        self._wheel_base = self.declare_parameter('~wheel_base', 0.091)
+        self.declare_parameter('~timeout', 2)
+        self._timeout = self.get_parameter('~timeout').get_parameter_value()
+        self.declare_parameter('~rate', 2)
+        self._rate = self.get_parameter('~rate').get_parameter_value()
+        self.declare_parameter('~max_speed', 0.5)
+        self._max_speed = self.get_parameter('~max_speed').get_parameter_value()
+        self.declare_parameter('~wheel_base', 0.091)
+        self._wheel_base = self.get_parameter('~wheel_base').get_parameter_value()
 
         # Assign pins to motors. These may be distributed
         # differently depending on how you've built your robot

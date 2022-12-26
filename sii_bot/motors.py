@@ -116,8 +116,6 @@ class MotorsControl(rclpy.node.Node):
 
 def main(args=None):
 
-
-
     rclpy.init(args=args)
 
     motors_node = MotorsControl()
