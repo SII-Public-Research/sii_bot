@@ -1,6 +1,7 @@
 # Contain motors node to control the wheels
 # TODO : subscribe to command_vel
-from rclpy.node import Node
+import rclpy
+import rclpy.node
 
 from std_msgs.msg import String
 
@@ -83,7 +84,7 @@ def right():
     pwmMotorBBackwards.ChangeDutyCycle(DutyCycle)
 
 
-class MotorsControl(Node):
+class MotorsControl(rclpy.node.Node):
 
     def __init__(self):
         super().__init__('motor_control_sub')

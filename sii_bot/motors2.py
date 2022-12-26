@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 
-import rospy
+import rclpy
+import rclpy.node
+
 from geometry_msgs.msg import Twist
 
 import RPi.GPIO as GPIO
+
+import threading
 
 # Set the GPIO modes
 GPIO.setmode(GPIO.BCM)
@@ -40,31 +44,37 @@ class Motor:
            self._forward_pwm.start(speed)
            self._backward_pwm.start(0)
 
-class Driver:
-   def __init__(self):
-       rospy.init_node('driver')
+class Driver(rclpy.node.Node):
 
-       self._last_received = rospy.get_time()
-       self._timeout = rospy.get_param('~timeout', 2)
-       self._rate = rospy.get_param('~rate', 10)
-       self._max_speed = rospy.get_param('~max_speed', 0.5)
-       self._wheel_base = rospy.get_param('~wheel_base', 0.091)
+    def __init__(self):
+        super().__init__('driver')
+        self.subscription = self.create_subscription(
+            Twist,
+            'cmd_vel',
+            self._velocity_received_callback,
+            10)
+        self.subscription  # prevent unused variable warning
 
-       # Assign pins to motors. These may be distributed
-       # differently depending on how you've built your robot
-       self._left_motor = Motor(10, 9)
-       self._right_motor = Motor(8, 7)
-       self._left_speed_percent = 0
-       self._right_speed_percent = 0
+        # store parameters and current time, visible with command ros2 param list
+        self._last_received = self.get_clock().now()
 
-       # Setup subscriber for velocity twist message
-       rospy.Subscriber(
-           'cmd_vel', Twist, self._velocity_received_callback)
+        self._timeout = self.declare_parameter('~timeout', 2)
+        self._rate = self.declare_parameter('~rate', 2)
+        self._max_speed = self.declare_parameter('~max_speed', 0.5)
+        self._wheel_base = self.declare_parameter('~wheel_base', 0.091)
 
-   def _velocity_received_callback(self, message):
+        # Assign pins to motors. These may be distributed
+        # differently depending on how you've built your robot
+        self._left_motor = Motor(10, 9)
+        self._right_motor = Motor(8, 7)
+        self._left_speed_percent = 0
+        self._right_speed_percent = 0
+
+
+    def _velocity_received_callback(self, message):
        """Handle new velocity command message."""
 
-       self._last_received = rospy.get_time()
+       self._last_received = self.get_clock().now()
 
        # Extract linear and angular velocities from the message
        linear = message.linear.x
@@ -83,16 +93,16 @@ class Driver:
        self._left_speed_percent = (100 * left_speed/self._max_speed)
        self._right_speed_percent = (100 * right_speed/self._max_speed)
 
-   def run(self):
+    def run(self):
        """The control loop of the driver."""
 
-       rate = rospy.Rate(self._rate)
+       rate = self.create_rate(self._rate)
 
-       while not rospy.is_shutdown():
+       while rclpy.ok():
            # If we haven't received new commands for a while, we
            # may have lost contact with the commander-- stop
            # moving
-           delay = rospy.get_time() - self._last_received
+           delay = self.get_clock().now() - self._last_received
            if delay < self._timeout:
                self._left_motor.move(self._left_speed_percent)
                self._right_motor.move(self._right_speed_percent)
@@ -102,13 +112,20 @@ class Driver:
 
            rate.sleep()
 
-def main():
-   driver = Driver()
+def main(args=None):
 
-   # Run driver. This will block
-   driver.run()
+    rclpy.init(args=args)
 
-   GPIO.cleanup()
+    driver_node = Driver()
+
+    thread = threading.Thread(target=rclpy.spin, args=(driver_node), daemon=True)
+
+    # Run driver. This will block
+    driver_node.run()
+
+    GPIO.cleanup()
+    rclpy.shutdown()
+    thread.join()
 
 if __name__ == '__main__':
    main()
