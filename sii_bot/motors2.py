@@ -113,7 +113,7 @@ class Driver(rclpy.node.Node):
            # moving
            delay = self.get_clock().now() - self._last_received
            _timeout = Duration(self.get_parameter('~timeout').get_parameter_value().integer_value)
-           if delay < _timeout:
+           if delay.to_msg() < _timeout:
                self._left_motor.move(self._left_speed_percent)
                self._right_motor.move(self._right_speed_percent)
            else:
