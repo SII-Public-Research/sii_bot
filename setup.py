@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
 		'motors_control = sii_bot.motors:main',
+        'motors_vel = sii.bot.motors2:main',
         ],
     },
 )

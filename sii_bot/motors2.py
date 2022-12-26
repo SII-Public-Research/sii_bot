@@ -1,141 +1,114 @@
-# Contain motors node to control the wheels
-# TODO : subscribe to command_vel
-from rclpy.node import Node
+#!/usr/bin/env python
 
-# from std_msgs.msg import String
+import rospy
 from geometry_msgs.msg import Twist
 
-import RPi.GPIO as GPIO  # Import the GPIO Library
-import time  # Import the Time library
+import RPi.GPIO as GPIO
 
 # Set the GPIO modes
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 
-# Set variables for the GPIO motor pins
-pinMotorAForwards = 10
-pinMotorABackwards = 9
-pinMotorBForwards = 8
-pinMotorBBackwards = 7
+_FREQUENCY = 20
 
-# How many times to turn the pin on and off each second
-Frequency = 20
-# How long the pin stays on each cycle, as a percent (here, it's 30%)
-DutyCycle = 30
-# Setting the duty cycle to 0 means the motors will not turn
-Stop = 0
+def _clip(value, minimum, maximum):
+   """Ensure value is between minimum and maximum."""
 
-# Set the GPIO Pin mode to be Output
-GPIO.setup(pinMotorAForwards, GPIO.OUT)
-GPIO.setup(pinMotorABackwards, GPIO.OUT)
-GPIO.setup(pinMotorBForwards, GPIO.OUT)
-GPIO.setup(pinMotorBBackwards, GPIO.OUT)
+   if value < minimum:
+       return minimum
+   elif value > maximum:
+       return maximum
+   return value
 
-# Set the GPIO to software PWM at 'Frequency' Hertz
-pwmMotorAForwards = GPIO.PWM(pinMotorAForwards, Frequency)
-pwmMotorABackwards = GPIO.PWM(pinMotorABackwards, Frequency)
-pwmMotorBForwards = GPIO.PWM(pinMotorBForwards, Frequency)
-pwmMotorBBackwards = GPIO.PWM(pinMotorBBackwards, Frequency)
+class Motor:
+   def __init__(self, forward_pin, backward_pin):
+       GPIO.setup(forward_pin, GPIO.OUT)
+       GPIO.setup(backward_pin, GPIO.OUT)
 
-# Start the software PWM with a duty cycle of 0 (i.e. not moving)
-pwmMotorAForwards.start(Stop)
-pwmMotorABackwards.start(Stop)
-pwmMotorBForwards.start(Stop)
-pwmMotorBBackwards.start(Stop)
+       self._forward_pwm = GPIO.PWM(forward_pin, _FREQUENCY)
+       self._backward_pwm = GPIO.PWM(backward_pin, _FREQUENCY)
 
+   def move(self, speed_percent):
+       speed = _clip(abs(speed_percent), 0, 100)
 
-# Turn all motors off
-def stopmotors():
-    pwmMotorAForwards.ChangeDutyCycle(Stop)
-    pwmMotorABackwards.ChangeDutyCycle(Stop)
-    pwmMotorBForwards.ChangeDutyCycle(Stop)
-    pwmMotorBBackwards.ChangeDutyCycle(Stop)
+       # Positive speeds move wheels forward, negative speeds
+       # move wheels backward
+       if speed_percent < 0:
+           self._backward_pwm.start(speed)
+           self._forward_pwm.start(0)
+       else:
+           self._forward_pwm.start(speed)
+           self._backward_pwm.start(0)
 
+class Driver:
+   def __init__(self):
+       rospy.init_node('driver')
 
-# Turn both motors forwards
-def forwards():
-    pwmMotorAForwards.ChangeDutyCycle(DutyCycle)
-    pwmMotorABackwards.ChangeDutyCycle(Stop)
-    pwmMotorBForwards.ChangeDutyCycle(DutyCycle)
-    pwmMotorBBackwards.ChangeDutyCycle(Stop)
+       self._last_received = rospy.get_time()
+       self._timeout = rospy.get_param('~timeout', 2)
+       self._rate = rospy.get_param('~rate', 10)
+       self._max_speed = rospy.get_param('~max_speed', 0.5)
+       self._wheel_base = rospy.get_param('~wheel_base', 0.091)
 
+       # Assign pins to motors. These may be distributed
+       # differently depending on how you've built your robot
+       self._left_motor = Motor(10, 9)
+       self._right_motor = Motor(8, 7)
+       self._left_speed_percent = 0
+       self._right_speed_percent = 0
 
-# Turn both motors backwards
-def backwards():
-    pwmMotorAForwards.ChangeDutyCycle(Stop)
-    pwmMotorABackwards.ChangeDutyCycle(DutyCycle)
-    pwmMotorBForwards.ChangeDutyCycle(Stop)
-    pwmMotorBBackwards.ChangeDutyCycle(DutyCycle)
+       # Setup subscriber for velocity twist message
+       rospy.Subscriber(
+           'cmd_vel', Twist, self._velocity_received_callback)
 
+   def _velocity_received_callback(self, message):
+       """Handle new velocity command message."""
 
-# Turn left
-def left():
-    pwmMotorAForwards.ChangeDutyCycle(Stop)
-    pwmMotorABackwards.ChangeDutyCycle(DutyCycle)
-    pwmMotorBForwards.ChangeDutyCycle(DutyCycle)
-    pwmMotorBBackwards.ChangeDutyCycle(Stop)
+       self._last_received = rospy.get_time()
 
+       # Extract linear and angular velocities from the message
+       linear = message.linear.x
+       angular = message.angular.z
 
-# Turn Right
-def right():
-    pwmMotorAForwards.ChangeDutyCycle(DutyCycle)
-    pwmMotorABackwards.ChangeDutyCycle(Stop)
-    pwmMotorBForwards.ChangeDutyCycle(Stop)
-    pwmMotorBBackwards.ChangeDutyCycle(DutyCycle)
+       # Calculate wheel speeds in m/s
+       left_speed = linear - angular*self._wheel_base/2
+       right_speed = linear + angular*self._wheel_base/2
 
+       # Ideally we'd now use the desired wheel speeds along
+       # with data from wheel speed sensors to come up with the
+       # power we need to apply to the wheels, but we don't have
+       # wheel speed sensors. Instead, we'll simply convert m/s
+       # into percent of maximum wheel speed, which gives us a
+       # duty cycle that we can apply to each motor.
+       self._left_speed_percent = (100 * left_speed/self._max_speed)
+       self._right_speed_percent = (100 * right_speed/self._max_speed)
 
-class MotorsControl(Node):
+   def run(self):
+       """The control loop of the driver."""
 
-    def __init__(self):
-        super().__init__('motor_control_sub')
-        self.subscription = self.create_subscription(
-            String,
-            'motor_command',
-            self.listener_callback,
-            10)
-        self.subscription  # prevent unused variable warning
+       rate = rospy.Rate(self._rate)
 
-    def listener_callback(self, msg):
-        self.get_logger().info('I heard: "%s"' % msg.data)
-        if msg.data == 'forward':
-            print('Moving Forwards')
-            forwards()
-        elif msg.data == 'backward':
-            print('Moving Backward')
-            backwards()
-        elif msg.data == 'left':
-            print('Moving to the left')
-            left()
-        elif msg.data == 'right':
-            print('Moving Forwards')
-            right()
-        else :
-            print('unknown command, stoping instead')
-            stopmotors()
+       while not rospy.is_shutdown():
+           # If we haven't received new commands for a while, we
+           # may have lost contact with the commander-- stop
+           # moving
+           delay = rospy.get_time() - self._last_received
+           if delay < self._timeout:
+               self._left_motor.move(self._left_speed_percent)
+               self._right_motor.move(self._right_speed_percent)
+           else:
+               self._left_motor.move(0)
+               self._right_motor.move(0)
 
+           rate.sleep()
 
-def main(args=None):
+def main():
+   driver = Driver()
 
+   # Run driver. This will block
+   driver.run()
 
-
-    rclpy.init(args=args)
-
-    motors_node = MotorsControl()
-
-    rclpy.spin(motors_node)
-
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    motors_node.destroy_node()
-    rclpy.shutdown()
-    stopmotors()
-    GPIO.cleanup()
-
+   GPIO.cleanup()
 
 if __name__ == '__main__':
-    main()
-
-
-
-
+   main()
