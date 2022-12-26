@@ -110,7 +110,7 @@ class Driver(rclpy.node.Node):
            # If we haven't received new commands for a while, we
            # may have lost contact with the commander-- stop
            # moving
-           delay = self.get_clock().now() - self._last_received
+           delay = (self.get_clock().now() - self._last_received).seconds()
            _timeout = self.get_parameter('~timeout').get_parameter_value().integer_value
            if delay < _timeout:
                self._left_motor.move(self._left_speed_percent)
