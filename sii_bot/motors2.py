@@ -98,8 +98,8 @@ class Driver(rclpy.node.Node):
        # into percent of maximum wheel speed, which gives us a
        # duty cycle that we can apply to each motor.
        _max_speed = self.get_parameter('~max_speed').get_parameter_value().integer_value
-       self._left_speed_percent = (100 * left_speed/self._max_speed)
-       self._right_speed_percent = (100 * right_speed/self._max_speed)
+       self._left_speed_percent = (100 * left_speed/_max_speed)
+       self._right_speed_percent = (100 * right_speed/_max_speed)
 
     def run(self):
        """The control loop of the driver."""
@@ -112,7 +112,7 @@ class Driver(rclpy.node.Node):
            # moving
            delay = self.get_clock().now() - self._last_received
            _timeout = self.get_parameter('~timeout').get_parameter_value().integer_value
-           if delay < self._timeout:
+           if delay < _timeout:
                self._left_motor.move(self._left_speed_percent)
                self._right_motor.move(self._right_speed_percent)
            else:
