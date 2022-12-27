@@ -48,6 +48,7 @@ class Motor:
 class Driver(rclpy.node.Node):
 
     def __init__(self):
+        print('Starting driver init')
         super().__init__('driver')
         self.subscription = self.create_subscription(
             Twist,
@@ -89,9 +90,9 @@ class Driver(rclpy.node.Node):
        angular = message.angular.z
 
        # Calculate wheel speeds in m/s
-       wheel_base = self.get_parameter('~wheel_base').get_parameter_value().integer_value
-       left_speed = linear - angular*self._wheel_base/2
-       right_speed = linear + angular*self._wheel_base/2
+       _wheel_base = self.get_parameter('~wheel_base').get_parameter_value().integer_value
+       left_speed = linear - angular*_wheel_base/2
+       right_speed = linear + angular*_wheel_base/2
 
        # Ideally we'd now use the desired wheel speeds along
        # with data from wheel speed sensors to come up with the
@@ -105,6 +106,7 @@ class Driver(rclpy.node.Node):
 
     def run(self):
        """The control loop of the driver."""
+       print('On est dans le run')
 
        _rate = self.create_rate(self.get_parameter('~rate').get_parameter_value().integer_value)
 
@@ -133,14 +135,19 @@ def main(args=None):
 
     driver_node = Driver()
 
+    print('launching thread')
     thread = threading.Thread(target=rclpy.spin, args=(driver_node), daemon=True)
+    print('thread launched')
 
     # Run driver. This will block
+    print('Launch RUN')
     driver_node.run()
+    print('RUN launched')
 
+    thread.join()
     GPIO.cleanup()
     rclpy.shutdown()
-    thread.join()
+    
 
 if __name__ == '__main__':
    main()
