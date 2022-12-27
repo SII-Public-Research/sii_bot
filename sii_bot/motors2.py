@@ -80,6 +80,7 @@ class Driver(rclpy.node.Node):
 
     def _velocity_received_callback(self, message):
        """Handle new velocity command message."""
+       print('Received something')
 
        self._last_received = self.get_clock().now()
 
