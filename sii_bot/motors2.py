@@ -111,14 +111,15 @@ class Driver(rclpy.node.Node):
        """The control loop of the driver."""
        print('On est dans le run')
 
+       rate = self.create_rate(self.get_parameter('~rate').get_parameter_value().integer_value)
+
        while rclpy.ok():
-           print('rclpy est OK')
+           print('rslpy est OK')
            # If we haven't received new commands for a while, we
            # may have lost contact with the commander-- stop
            # moving
            now = self.get_clock().now()
            past = self._last_received
-           # delay = self.get_clock().now() - self._last_received
            delay = (now - past).nanoseconds * 1e-9
            print('delay = ', delay)
            if delay < self._timeout:
@@ -128,7 +129,7 @@ class Driver(rclpy.node.Node):
                self._left_motor.move(0)
                self._right_motor.move(0)
 
-           self._rate.sleep()
+           rate.sleep()
 
 def main(args=None):
 
