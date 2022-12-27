@@ -60,16 +60,20 @@ class Driver(rclpy.node.Node):
         # store parameters and current time, visible with command ros2 param list
         self._last_received = self.get_clock().now()
 
-        self.declare_parameter('my_parameter', 'world')
-
         self.declare_parameter('~timeout', 2)
-        #self._timeout = self.get_parameter('~timeout').get_parameter_value().integer_value
+        self._timeout = self.get_parameter('~timeout').value
         self.declare_parameter('~rate', 2)
-        #self._rate = self.get_parameter('~rate').get_parameter_value().integer_value
+        self._rate = self.get_parameter('~rate').value
         self.declare_parameter('~max_speed', 0.5)
-        #self._max_speed = self.get_parameter('~max_speed').get_parameter_value().integer_value
+        self._max_speed = self.get_parameter('~max_speed').value
         self.declare_parameter('~wheel_base', 0.091)
-        #self._wheel_base = self.get_parameter('~wheel_base').get_parameter_value().integer_value
+        self._wheel_base = self.get_parameter('~wheel_base').value
+
+        print("~timeout = ", self._timeout)
+        print("~rate = ", self._rate)
+        print("~max_speed = ", self._max_speed)
+        print("~wheel_base = ", self._wheel_base)
+
 
         # Assign pins to motors. These may be distributed
         # differently depending on how you've built your robot
@@ -90,9 +94,9 @@ class Driver(rclpy.node.Node):
        angular = message.angular.z
 
        # Calculate wheel speeds in m/s
-       _wheel_base = self.get_parameter('~wheel_base').get_parameter_value().integer_value
-       left_speed = linear - angular*_wheel_base/2
-       right_speed = linear + angular*_wheel_base/2
+      
+       left_speed = linear - angular*self._wheel_base/2
+       right_speed = linear + angular*self._wheel_base/2
 
        # Ideally we'd now use the desired wheel speeds along
        # with data from wheel speed sensors to come up with the
@@ -100,36 +104,31 @@ class Driver(rclpy.node.Node):
        # wheel speed sensors. Instead, we'll simply convert m/s
        # into percent of maximum wheel speed, which gives us a
        # duty cycle that we can apply to each motor.
-       _max_speed = self.get_parameter('~max_speed').get_parameter_value().integer_value
-       self._left_speed_percent = (100 * left_speed/_max_speed)
-       self._right_speed_percent = (100 * right_speed/_max_speed)
+       self._left_speed_percent = (100 * left_speed/self._max_speed)
+       self._right_speed_percent = (100 * right_speed/self._max_speed)
 
     def run(self):
        """The control loop of the driver."""
        print('On est dans le run')
 
-       _rate = self.create_rate(self.get_parameter('~rate').get_parameter_value().integer_value)
-       print('rate = ', _rate)
        while rclpy.ok():
-           print('rslpy est OK')
+           print('rclpy est OK')
            # If we haven't received new commands for a while, we
            # may have lost contact with the commander-- stop
            # moving
            now = self.get_clock().now()
            past = self._last_received
            # delay = self.get_clock().now() - self._last_received
-           _timeout = self.get_parameter('~timeout').get_parameter_value().integer_value
            delay = (now - past).nanoseconds * 1e-9
            print('delay = ', delay)
-           #if delay < _timeout:
-           if delay > _timeout:
+           if delay < self._timeout:
                self._left_motor.move(self._left_speed_percent)
                self._right_motor.move(self._right_speed_percent)
            else:
                self._left_motor.move(0)
                self._right_motor.move(0)
 
-           _rate.sleep()
+           self._rate.sleep()
 
 def main(args=None):
 
