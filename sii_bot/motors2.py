@@ -111,6 +111,7 @@ class Driver(rclpy.node.Node):
        _rate = self.create_rate(self.get_parameter('~rate').get_parameter_value().integer_value)
 
        while rclpy.ok():
+           print('rslpy est OK')
            # If we haven't received new commands for a while, we
            # may have lost contact with the commander-- stop
            # moving
@@ -119,6 +120,7 @@ class Driver(rclpy.node.Node):
            # delay = self.get_clock().now() - self._last_received
            _timeout = self.get_parameter('~timeout').get_parameter_value().integer_value
            delay = (now - past).nanoseconds * 1e-9
+           print('delay = ', delay)
            #if delay < _timeout:
            if delay > _timeout:
                self._left_motor.move(self._left_speed_percent)
