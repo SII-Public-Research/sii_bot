@@ -111,8 +111,8 @@ class Driver(rclpy.node.Node):
        """The control loop of the driver."""
        print('On est dans le run')
 
-       # rate = self.create_rate(self.get_parameter('~rate').get_parameter_value().integer_value)
-       rate = self.create_rate(2)
+       rate = self.create_rate(self.get_parameter('~rate').get_parameter_value().integer_value)
+
        while rclpy.ok():
            print('rclpy est OK')
            # If we haven't received new commands for a while, we
@@ -130,7 +130,7 @@ class Driver(rclpy.node.Node):
                self._right_motor.move(0)
            print('on est avant le sleep')
            rate.sleep()
-           print('on est arpès le sleep')
+           print('on est après le sleep')
 
 def main(args=None):
 
@@ -140,12 +140,11 @@ def main(args=None):
 
     print('launching thread')
     thread = threading.Thread(target=rclpy.spin, args=(driver_node), daemon=True)
+    thread.start()
     print('thread launched')
 
     # Run driver. This will block
-    print('Launch RUN')
     driver_node.run()
-    print('RUN launched')
 
     thread.join()
     GPIO.cleanup()
