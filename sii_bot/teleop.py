@@ -146,22 +146,22 @@ def main():
             if key == 'z': # go front
                 target_x_linear_velocity =\
                     check_linear_limit_velocity(target_x_linear_velocity + LIN_VEL_STEP_SIZE)
-                status = status + 1
+                target_angular_velocity = 0.0
                 print_vels(target_x_linear_velocity, target_angular_velocity)
             elif key == 'x': # go back
                 target_x_linear_velocity =\
                     check_linear_limit_velocity(target_x_linear_velocity - LIN_VEL_STEP_SIZE)
-                status = status + 1
+                target_angular_velocity = 0.0
                 print_vels(target_x_linear_velocity, target_angular_velocity)
             elif key == 'q': # turn left
                 target_angular_velocity =\
                     check_angular_limit_velocity(target_angular_velocity + ANG_VEL_STEP_SIZE)
-                status = status + 1
+
                 print_vels(target_x_linear_velocity, target_angular_velocity)
             elif key == 'd': # turn right
                 target_angular_velocity =\
                     check_angular_limit_velocity(target_angular_velocity - ANG_VEL_STEP_SIZE)
-                status = status + 1
+
                 print_vels(target_x_linear_velocity, target_angular_velocity)
             elif key == ' ' or key == 's': # stop
                 target_x_linear_velocity  = 0.0
@@ -174,10 +174,6 @@ def main():
             else:
                 if (key == '\x03'):
                     break
-
-            if status == 20:
-                print(msg)
-                status = 0
 
             twist = Twist()
 
