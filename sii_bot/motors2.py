@@ -139,7 +139,7 @@ def main(args=None):
     driver_node = Driver()
 
     print('launching thread')
-    thread = threading.Thread(target=rclpy.spin, args=(driver_node), daemon=True)
+    thread = threading.Thread(target=rclpy.spin, args=(driver_node, ), daemon=True)
     thread.start()
     print('thread launched')
 
