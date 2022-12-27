@@ -114,7 +114,7 @@ class Driver(rclpy.node.Node):
        rate = self.create_rate(self.get_parameter('~rate').get_parameter_value().integer_value)
 
        while rclpy.ok():
-           print('rslpy est OK')
+           print('rclpy est OK')
            # If we haven't received new commands for a while, we
            # may have lost contact with the commander-- stop
            # moving
@@ -128,8 +128,9 @@ class Driver(rclpy.node.Node):
            else:
                self._left_motor.move(0)
                self._right_motor.move(0)
-
+           print('on est avant le sleep')
            rate.sleep()
+           print('on est arpès le sleep')
 
 def main(args=None):
 
