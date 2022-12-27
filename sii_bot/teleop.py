@@ -131,7 +131,7 @@ def main():
 
     qos = QoSProfile(depth=10)
     node = rclpy.create_node('skippy_teleop')
-    pub = node.create_publisher(Twist, 'skippy_cmd_vel', qos)
+    pub = node.create_publisher(Twist, 'cmd_vel', qos)
 
     status = 0
     target_x_linear_velocity = 0.0
