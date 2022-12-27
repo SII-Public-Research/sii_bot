@@ -86,7 +86,7 @@ def get_key(settings):
     return key
 
 
-def print_vels(target_x_linear_velocity, target_y_linear_velocity, target_angular_velocity):
+def print_vels(target_x_linear_velocity, target_angular_velocity):
     print('currently:\t linear velocity X {0}\t angular velocity {1} '.format(
         target_x_linear_velocity,
         target_angular_velocity))
