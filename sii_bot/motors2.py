@@ -111,8 +111,8 @@ class Driver(rclpy.node.Node):
        """The control loop of the driver."""
        print('On est dans le run')
 
-       rate = self.create_rate(self.get_parameter('~rate').get_parameter_value().integer_value)
-
+       # rate = self.create_rate(self.get_parameter('~rate').get_parameter_value().integer_value)
+       rate = self.create_rate(2)
        while rclpy.ok():
            print('rclpy est OK')
            # If we haven't received new commands for a while, we
