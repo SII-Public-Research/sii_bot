@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-#
-# Copyright (c) 2011, Willow Garage, Inc.
+# Copyright 2017 Open Source Robotics Foundation, Inc.
 # All rights reserved.
 #
 # Software License Agreement (BSD License 2.0)
@@ -15,7 +13,7 @@
 #    copyright notice, this list of conditions and the following
 #    disclaimer in the documentation and/or other materials provided
 #    with the distribution.
-#  * Neither the name of {copyright_holder} nor the names of its
+#  * Neither the name of the Willow Garage nor the names of its
 #    contributors may be used to endorse or promote products derived
 #    from this software without specific prior written permission.
 #
@@ -31,8 +29,6 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-#
-# Author: Darby Lim
 
 import os
 import select
@@ -51,11 +47,12 @@ else:
 MAX_LIN_VEL = 100.0 #0.22
 MAX_ANG_VEL = 100.0  #2.84
 
-# vitesse d'incrementation de la commande
 LIN_VEL_STEP_SIZE = 0.02
 ANG_VEL_STEP_SIZE = 0.1
 
+
 msg = """
+
 Control Your SII Bot!
 ---------------------------
 Moving around:
@@ -63,8 +60,8 @@ Moving around:
    q    s    d
         x
 
-z/x : increase/decrease x linear velocity (Burger : ~ 0.22, Waffle and Waffle Pi : ~ 0.26)
-q/d : increase/decrease angular velocity (Burger : ~ 2.84, Waffle and Waffle Pi : ~ 1.82)
+z/x : increase/decrease x linear velocity
+r/t : increase/decrease angular velocity 
 
 space key, s : force stop
 
@@ -74,7 +71,6 @@ CTRL-C to quit
 e = """
 Communications Failed
 """
-
 
 def get_key(settings):
     if os.name == 'nt':
@@ -91,13 +87,11 @@ def get_key(settings):
 
 
 def print_vels(target_x_linear_velocity, target_y_linear_velocity, target_angular_velocity):
-    print('currently:\t linear velocity X {0}\t linear velocity Y {1}\t angular velocity {2} '.format(
+    print('currently:\t linear velocity X {0}\t angular velocity {1} '.format(
         target_x_linear_velocity,
-        target_y_linear_velocity,
         target_angular_velocity))
 
 
-# c'est quoi ca ?
 def make_simple_profile(output, input, slop):
     if input > output:
         output = min(input, output + slop)
@@ -141,10 +135,8 @@ def main():
 
     status = 0
     target_x_linear_velocity = 0.0
-    target_y_linear_velocity = 0.0
     target_angular_velocity = 0.0
     control_x_linear_velocity = 0.0
-    control_y_linear_velocity = 0.0
     control_angular_velocity = 0.0
 
     try:
@@ -155,60 +147,22 @@ def main():
                 target_x_linear_velocity =\
                     check_linear_limit_velocity(target_x_linear_velocity + LIN_VEL_STEP_SIZE)
                 status = status + 1
-                print_vels(target_x_linear_velocity, target_y_linear_velocity, target_angular_velocity)
+                print_vels(target_x_linear_velocity, target_angular_velocity)
             elif key == 'x': # go back
                 target_x_linear_velocity =\
                     check_linear_limit_velocity(target_x_linear_velocity - LIN_VEL_STEP_SIZE)
                 status = status + 1
-                print_vels(target_x_linear_velocity, target_y_linear_velocity, target_angular_velocity)
+                print_vels(target_x_linear_velocity, target_angular_velocity)
             elif key == 'q': # turn left
                 target_angular_velocity =\
                     check_angular_limit_velocity(target_angular_velocity + ANG_VEL_STEP_SIZE)
                 status = status + 1
-                print_vels(target_x_linear_velocity, target_y_linear_velocity, target_angular_velocity)
+                print_vels(target_x_linear_velocity, target_angular_velocity)
             elif key == 'd': # turn right
                 target_angular_velocity =\
                     check_angular_limit_velocity(target_angular_velocity - ANG_VEL_STEP_SIZE)
                 status = status + 1
-                print_vels(target_x_linear_velocity, target_y_linear_velocity, target_angular_velocity)
-            elif key == 'r': # go left
-                target_y_linear_velocity =\
-                    check_linear_limit_velocity(target_y_linear_velocity + LIN_VEL_STEP_SIZE)
-                status = status + 1
-                print_vels(target_x_linear_velocity, target_y_linear_velocity, target_angular_velocity)
-            elif key == 't': # go right
-                target_y_linear_velocity =\
-                    check_linear_limit_velocity(target_y_linear_velocity - LIN_VEL_STEP_SIZE)
-                status = status + 1
-                print_vels(target_x_linear_velocity, target_y_linear_velocity, target_angular_velocity)
-            elif key == 'a': # go front-left
-                target_x_linear_velocity =\
-                    check_linear_limit_velocity(target_x_linear_velocity + LIN_VEL_STEP_SIZE)
-                target_y_linear_velocity =\
-                    check_linear_limit_velocity(target_y_linear_velocity + LIN_VEL_STEP_SIZE)
-                status = status + 1
-                print_vels(target_x_linear_velocity, target_y_linear_velocity, target_angular_velocity)
-            elif key == 'e': # go front-right
-                target_x_linear_velocity =\
-                    check_linear_limit_velocity(target_x_linear_velocity + LIN_VEL_STEP_SIZE)
-                target_y_linear_velocity =\
-                    check_linear_limit_velocity(target_y_linear_velocity - LIN_VEL_STEP_SIZE)
-                status = status + 1
-                print_vels(target_x_linear_velocity, target_y_linear_velocity, target_angular_velocity)
-            elif key == 'w': # go back-left
-                target_x_linear_velocity =\
-                    check_linear_limit_velocity(target_x_linear_velocity - LIN_VEL_STEP_SIZE)
-                target_y_linear_velocity =\
-                    check_linear_limit_velocity(target_y_linear_velocity + LIN_VEL_STEP_SIZE)
-                status = status + 1
-                print_vels(target_x_linear_velocity, target_y_linear_velocity, target_angular_velocity)
-            elif key == 'c': # go back-right
-                target_x_linear_velocity =\
-                    check_linear_limit_velocity(target_x_linear_velocity - LIN_VEL_STEP_SIZE)
-                target_y_linear_velocity =\
-                    check_linear_limit_velocity(target_y_linear_velocity - LIN_VEL_STEP_SIZE)
-                status = status + 1
-                print_vels(target_x_linear_velocity, target_y_linear_velocity, target_angular_velocity)
+                print_vels(target_x_linear_velocity, target_angular_velocity)
             elif key == ' ' or key == 's': # stop
                 target_x_linear_velocity  = 0.0
                 control_x_linear_velocity = 0.0
@@ -216,7 +170,7 @@ def main():
                 control_y_linear_velocity = 0.0
                 target_angular_velocity   = 0.0
                 control_angular_velocity  = 0.0
-                print_vels(target_x_linear_velocity, target_y_linear_velocity, target_angular_velocity)
+                print_vels(target_x_linear_velocity, target_angular_velocity)
             else:
                 if (key == '\x03'):
                     break
@@ -232,13 +186,8 @@ def main():
                 target_x_linear_velocity,
                 (LIN_VEL_STEP_SIZE))
 
-            control_y_linear_velocity = make_simple_profile(
-                control_y_linear_velocity,
-                target_y_linear_velocity,
-                (LIN_VEL_STEP_SIZE))
-
             twist.linear.x = control_x_linear_velocity
-            twist.linear.y = control_y_linear_velocity
+            twist.linear.y = 0.0
             twist.linear.z = 0.0
 
             control_angular_velocity = make_simple_profile(
