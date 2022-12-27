@@ -109,7 +109,7 @@ class Driver(rclpy.node.Node):
        print('On est dans le run')
 
        _rate = self.create_rate(self.get_parameter('~rate').get_parameter_value().integer_value)
-
+       print('rate = ', _rate)
        while rclpy.ok():
            print('rslpy est OK')
            # If we haven't received new commands for a while, we
