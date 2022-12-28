@@ -110,12 +110,12 @@ def main():
                 
             elif key == 'q': # turn left
                 linear_velocity = 0.0
-                angular_velocity = 5.0
+                angular_velocity = -5.0
                 print('Moving to the left')
 
             elif key == 'd': # turn right
                 linear_velocity = 0.0
-                angular_velocity = -5.0
+                angular_velocity = 5.0
                 print('Moving to the right')
 
             elif key == ' ' or key == 's': # stop
@@ -139,6 +139,7 @@ def main():
 
             print(twist.linear)
             pub.publish(twist)
+            key = ''
 
     except Exception as e:
         print(e)
