@@ -59,7 +59,7 @@ class Driver(rclpy.node.Node):
         # store parameters and current time, visible with command ros2 param list
         self._last_received = self.get_clock().now()
 
-        self.declare_parameter('~timeout', 2)
+        self.declare_parameter('~timeout', 0.5)
         self._timeout = self.get_parameter('~timeout').value
         self.declare_parameter('~rate', 2)
         self._rate = self.get_parameter('~rate').value
