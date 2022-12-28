@@ -43,10 +43,11 @@ class LineFollower(rclpy.node.Node):
 
     def __init__(self):
         super().__init__('line_follower')
-        self.publishers = self.create_publisher(
+        self.publisher = self.create_publisher(
             Twist,
             'cmd_vel',
             10)
+        self.publisher
 
         self._followers = FollowSensor(_FOLLOWER_LEFT, _FOLLOWER_MIDDLE, _FOLLOWER_RIGHT)
 
