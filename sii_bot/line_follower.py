@@ -47,7 +47,6 @@ class LineFollower(rclpy.node.Node):
             Twist,
             'cmd_vel',
             10)
-        self.publishers # prevent unused variable warning 
 
         self._followers = FollowSensor(_FOLLOWER_LEFT, _FOLLOWER_MIDDLE, _FOLLOWER_RIGHT)
 
