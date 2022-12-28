@@ -61,27 +61,27 @@ class LineFollower(rclpy.node.Node):
         while rclpy.ok():
             values = self._followers.get_values()
             match values:
-                case (0, 0, 0):
+                case (1, 1, 1):
                     print('Je suis dans le noir !')
                     self._linear_velocity = 0.0
                     self._angular_velocity = 0.0
-                case (0, 0, 1):
+                case (1, 1, 0):
                     print('Je derive a fond vers la gauche, a droite toute !')
                     self._linear_velocity = 0.0
                     self._angular_velocity = 2.0
-                case (0, 1, 1):
+                case (1, 0, 0):
                     print('Je derive un peu vers la gauche, a droite !')
                     self._linear_velocity = 2.0
                     self._angular_velocity = 1.0
-                case (1, 1, 1):
+                case (0, 0, 0):
                     print('On va tout droit !')
                     self._linear_velocity = 2.0
                     self._angular_velocity = 0.0
-                case (1, 1, 0):
+                case (0, 0, 1):
                     print('Je derive un peu vers la droite, a gauche !')
                     self._linear_velocity = 2.0
                     self._angular_velocity = -1.0
-                case (1, 0, 0):
+                case (0, 1, 1):
                     print('Je derive a fond vers la droite, a gauche toute ! ')
                     self._linear_velocity = 0.0
                     self._angular_velocity = -2.0
