@@ -63,32 +63,32 @@ class LineFollower(rclpy.node.Node):
             match values:
                 case (0, 0, 0):
                     print('Je suis dans le noir !')
-                    self._linear_velocity = 0
-                    self._angular_velocity = 0
+                    self._linear_velocity = 0.0
+                    self._angular_velocity = 0.0
                 case (0, 0, 1):
                     print('Je derive a fond vers la gauche, a droite toute !')
-                    self._linear_velocity = 0
-                    self._angular_velocity = 2
+                    self._linear_velocity = 0.0
+                    self._angular_velocity = 2.0
                 case (0, 1, 1):
                     print('Je derive un peu vers la gauche, a droite !')
-                    self._linear_velocity = 2
-                    self._angular_velocity = 1
+                    self._linear_velocity = 2.0
+                    self._angular_velocity = 1.0
                 case (1, 1, 1):
                     print('On va tout droit !')
-                    self._linear_velocity = 2
-                    self._angular_velocity = 0
+                    self._linear_velocity = 2.0
+                    self._angular_velocity = 0.0
                 case (1, 1, 0):
                     print('Je derive un peu vers la droite, a gauche !')
-                    self._linear_velocity = 2
-                    self._angular_velocity = -1
+                    self._linear_velocity = 2.0
+                    self._angular_velocity = -1.0
                 case (1, 0, 0):
                     print('Je derive a fond vers la droite, a gauche toute ! ')
-                    self._linear_velocity = 0
-                    self._angular_velocity = -2
+                    self._linear_velocity = 0.0
+                    self._angular_velocity = -2.0
                 case _:
                     print('Cas bizarre, je ne sais pas quoi faire !')
-                    self._linear_velocity = 0
-                    self._angular_velocity = 0
+                    self._linear_velocity = 0.0
+                    self._angular_velocity = 0.0
             
             twist = Twist()
             twist.linear.x = self._linear_velocity
