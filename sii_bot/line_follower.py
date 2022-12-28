@@ -99,7 +99,7 @@ class LineFollower(rclpy.node.Node):
             twist.angular.y = 0.0
             twist.angular.z = self._angular_velocity
 
-            self.publishers.publish(twist)
+            self.publisher.publish(twist)
             
 
 
