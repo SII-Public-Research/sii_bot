@@ -23,6 +23,7 @@ setup(
 		'motors_control = sii_bot.motors:main',
         'motors_vel = sii_bot.motors2:main',
         'teleop_twist_keyboard = sii_bot.teleop:main'
+        'line_follower_command = sii_bot.line_follower:main'
         ],
     },
 )
