@@ -7,6 +7,8 @@ import rclpy.node
 
 from geometry_msgs.msg import Twist
 
+import threading
+
 import RPi.GPIO as GPIO
 
 # Set the GPIO modes
@@ -53,6 +55,8 @@ class LineFollower(rclpy.node.Node):
         self._angular_velocity = 0
 
     def run(self):
+        
+
 
         while rclpy.ok():
             values = self._followers.get_values()
@@ -105,9 +109,13 @@ def main(args=None):
 
     line_follower = LineFollower()
 
+    thread = threading.Thread(target=rclpy.spin, args=(line_follower, ), daemon=True)
+    thread.start()
+
     # Run node. This will block
     line_follower.run()
 
+    thread.join()
     GPIO.cleanup()
     rclpy.shutdown()
 
