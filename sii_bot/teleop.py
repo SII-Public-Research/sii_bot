@@ -99,23 +99,23 @@ def main():
         while(1):
             key = get_key(settings)
             if key == 'z': # go front
-                linear_velocity = 2.0
+                linear_velocity = 5.0
                 angular_velocity = 0.0
                 print('Moving forward')
 
             elif key == 'x': # go back
-                linear_velocity = -2.0
+                linear_velocity = -5.0
                 angular_velocity = 0.0
                 print('Moving backward')
                 
             elif key == 'q': # turn left
                 linear_velocity = 0.0
-                angular_velocity = 2.0
+                angular_velocity = 5.0
                 print('Moving to the left')
 
             elif key == 'd': # turn right
                 linear_velocity = 0.0
-                angular_velocity = -2.0
+                angular_velocity = -5.0
                 print('Moving to the right')
 
             elif key == ' ' or key == 's': # stop
