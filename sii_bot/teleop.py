@@ -93,6 +93,7 @@ def main():
 
     linear_velocity = 0.0
     angular_velocity = 0.0
+    cmd = 0
 
     try:
         print(msg)
@@ -102,44 +103,49 @@ def main():
                 linear_velocity = 5.0
                 angular_velocity = 0.0
                 print('Moving forward')
+                cmd = 1
 
             elif key == 'x': # go back
                 linear_velocity = -5.0
                 angular_velocity = 0.0
                 print('Moving backward')
+                cmd = 1
                 
             elif key == 'q': # turn left
                 linear_velocity = 0.0
                 angular_velocity = -5.0
                 print('Moving to the left')
+                cmd = 1
 
             elif key == 'd': # turn right
                 linear_velocity = 0.0
                 angular_velocity = 5.0
                 print('Moving to the right')
+                cmd = 1
 
             elif key == ' ' or key == 's': # stop
                 linear_velocity = 0.0
                 angular_velocity = 0.0
+                cmd = 1
 
             else:
                 if (key == '\x03'):
                     break
+            
+            if cmd == 1:
+                cmd = 0
+                twist = Twist()
 
-            twist = Twist()
+                twist.linear.x = linear_velocity
+                twist.linear.y = 0.0
+                twist.linear.z = 0.0
 
+                twist.angular.x = 0.0
+                twist.angular.y = 0.0
+                twist.angular.z = angular_velocity
 
-            twist.linear.x = linear_velocity
-            twist.linear.y = 0.0
-            twist.linear.z = 0.0
-
-            twist.angular.x = 0.0
-            twist.angular.y = 0.0
-            twist.angular.z = angular_velocity
-
-            print(twist.linear)
-            pub.publish(twist)
-            key = ''
+                print(twist.linear)
+                pub.publish(twist)
 
     except Exception as e:
         print(e)
