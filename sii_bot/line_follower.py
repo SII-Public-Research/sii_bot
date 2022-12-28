@@ -31,12 +31,12 @@ class FollowSensor:
         GPIO.setup(self._middle_pin, GPIO.IN)
         GPIO.setup(self._right_pin, GPIO.IN)
 
-def get_values(self):
-    left_value = GPIO.input(self._left_pin)
-    middle_value = GPIO.input(self._middle_pin)
-    right_value = GPIO.input(self._right_pin)
+    def get_values(self):
+        left_value = GPIO.input(self._left_pin)
+        middle_value = GPIO.input(self._middle_pin)
+        right_value = GPIO.input(self._right_pin)
 
-    return (left_value, middle_value, right_value)
+        return (left_value, middle_value, right_value)
 
 # Define a class that will publish a Twist depending on values from following sensors
 class LineFollower(rclpy.node.Node):
