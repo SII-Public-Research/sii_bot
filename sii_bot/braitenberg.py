@@ -26,7 +26,7 @@ GPIO.setup(pinTrigger2, GPIO.OUT)
 GPIO.setup(pinEcho2, GPIO.IN)
 
 # Define a class containing 3 following sensors 
-class FollowSensor:
+class UltraSonicSensor:
     def __init__(self, pinTrigger1, pinEcho1, pinTrigger2, pinEcho2):
         self.pinTrigger1 = pinTrigger1
         self.pinEcho1 = pinEcho1
@@ -100,7 +100,7 @@ class Braitenberg(rclpy.node.Node):
             10)
         self.publisher
 
-        self.sensors = Braitenberg(pinTrigger1, pinEcho1, pinTrigger2, pinEcho2)
+        self.sensors = UltraSonicSensor(pinTrigger1, pinEcho1, pinTrigger2, pinEcho2)
 
         self._linear_velocity = 0
         self._angular_velocity = 0
