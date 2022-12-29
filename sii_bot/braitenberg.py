@@ -110,10 +110,10 @@ class Braitenberg(rclpy.node.Node):
         while rclpy.ok():
             if (self.sensors.currentSensor == 0):
                 values1 = self.sensors.get_values1()
-                (self.sensors.currentSensor += 1)%2
+                self.sensors.currentSensor = (self.sensors.currentSensor+1)%2
             else:
                 values2 = self.sensors.get_values2()
-                (self.sensors.currentSensor += 1)%2
+                self.sensors.currentSensor = (self.sensors.currentSensor+1)%2
 
             self._linear_velocity = 1.0
             self._angular_velocity = values1 - values2
