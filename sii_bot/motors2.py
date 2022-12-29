@@ -61,7 +61,7 @@ class Driver(rclpy.node.Node):
 
         self.declare_parameter('~timeout', 0.5)
         self._timeout = self.get_parameter('~timeout').value
-        self.declare_parameter('~rate', 1000)
+        self.declare_parameter('~rate', 10000)
         self._rate = self.get_parameter('~rate').value
         self.declare_parameter('~max_speed', 0.5)
         self._max_speed = self.get_parameter('~max_speed').value
