@@ -1,7 +1,3 @@
-# This script 
-# following sensor
-#   - WHITE = 1
-#   - BLACK = 0
 import rclpy
 import rclpy.node
 
@@ -16,10 +12,6 @@ import time
 # Set the GPIO modes
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
-
-_FOLLOWER_LEFT = 25
-_FOLLOWER_MIDDLE = 24
-_FOLLOWER_RIGHT = 23
 
 pinTrigger1 = 17 #droite
 pinEcho1 = 18
