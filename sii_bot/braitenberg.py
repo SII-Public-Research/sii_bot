@@ -78,7 +78,7 @@ class UltraSonicSensor:
         while GPIO.input(pinEcho2) == 1:
             StopTime = time.time()
             if StopTime - StartTime >= 0.04:
-                print("Too close 1!")
+                print("Too close 2!")
                 StopTime = StartTime
                 break
 
@@ -98,7 +98,7 @@ class Braitenberg(rclpy.node.Node):
             Twist,
             'cmd_vel',
             10)
-        self.publisher
+        #self.publisher
 
         self.sensors = UltraSonicSensor(pinTrigger1, pinEcho1, pinTrigger2, pinEcho2)
 
@@ -106,7 +106,8 @@ class Braitenberg(rclpy.node.Node):
         self._angular_velocity = 0
 
     def run(self):
-        
+        values1 = 0
+        values2 = 0
         while rclpy.ok():
             if (self.sensors.currentSensor == 0):
                 values1 = self.sensors.get_values1()
