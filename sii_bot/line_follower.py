@@ -1,7 +1,8 @@
-# This script 
+# This script acquire line following sensors and push a Twist to the topic cmd_vel
 # following sensor
 #   - WHITE = 1
 #   - BLACK = 0
+
 import rclpy
 import rclpy.node
 
@@ -56,8 +57,6 @@ class LineFollower(rclpy.node.Node):
 
     def run(self):
         
-
-
         while rclpy.ok():
             values = self._followers.get_values()
             match values:
@@ -94,7 +93,9 @@ class LineFollower(rclpy.node.Node):
                     self._linear_velocity = 0.0
                     self._angular_velocity = 0.0
             
+            # Preparing and sending the Twist
             twist = Twist()
+
             twist.linear.x = self._linear_velocity
             twist.linear.y = 0.0
             twist.linear.z = 0.0
@@ -105,7 +106,6 @@ class LineFollower(rclpy.node.Node):
 
             self.publisher.publish(twist)
             
-
 
 def main(args=None):
 
