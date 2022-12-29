@@ -65,7 +65,7 @@ class Driver(rclpy.node.Node):
         self._rate = self.get_parameter('~rate').value
         self.declare_parameter('~max_speed', 0.5)
         self._max_speed = self.get_parameter('~max_speed').value
-        self.declare_parameter('~wheel_base', 0.091)
+        self.declare_parameter('~wheel_base', 0.166)
         self._wheel_base = self.get_parameter('~wheel_base').value
 
 
