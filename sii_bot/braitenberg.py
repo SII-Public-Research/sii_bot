@@ -116,8 +116,14 @@ class Braitenberg(rclpy.node.Node):
                 values2 = self.sensors.get_values2()
                 self.sensors.currentSensor = (self.sensors.currentSensor+1)%2
 
-            self._linear_velocity = 1.0
-            self._angular_velocity = values1 - values2
+            self._linear_velocity = 0.5
+
+            if (values1 > 20) :
+                values1 = 0
+            if (values2 > 20) :
+                values2 = 0
+
+            self._angular_velocity = values1/20 - values2/20
             
             twist = Twist()
             twist.linear.x = self._linear_velocity
