@@ -21,9 +21,9 @@ _FOLLOWER_LEFT = 25
 _FOLLOWER_MIDDLE = 24
 _FOLLOWER_RIGHT = 23
 
-pinTrigger1 = 17
+pinTrigger1 = 17 #droite
 pinEcho1 = 18
-pinTrigger2 = 23
+pinTrigger2 = 23 #gauche
 pinEcho2 = 22
 
 print("Ultrasconic Measurement")
@@ -33,13 +33,22 @@ GPIO.setup(pinEcho1, GPIO.IN)
 GPIO.setup(pinTrigger2, GPIO.OUT)
 GPIO.setup(pinEcho2, GPIO.IN)
 
-try:
-    while True:
+# Define a class containing 3 following sensors 
+class FollowSensor:
+    def __init__(self, pinTrigger1, pinEcho1, pinTrigger2, pinEcho2):
+        self.pinTrigger1 = pinTrigger1
+        self.pinEcho1 = pinEcho1
+        self.pinTrigger2 = pinTrigger2
+        self.pinEcho2 = pinEcho2
+        self.currentSensor = 0
+
+        GPIO.setup(self.pinTrigger1, GPIO.OUT)
+        GPIO.setup(self.pinEcho1, GPIO.IN)
+        GPIO.setup(self.pinTrigger2, GPIO.OUT)
+        GPIO.setup(self.pinEcho2, GPIO.IN)
+
+    def get_values1(self):
         GPIO.output(pinTrigger1, False)
-        GPIO.output(pinTrigger2, False)
-
-        time.sleep(0.5)
-
         GPIO.output(pinTrigger1, True)
         time.sleep(0.00001)
         GPIO.output(pinTrigger1, False)
@@ -57,13 +66,17 @@ try:
                 break
 
         ElapsedTime = StopTime - StartTime
-        Distance = ElapsedTime * 34326 / 2
+        Distance1 = ElapsedTime * 34326 / 2
 
-        print("Distance1 : %.1f cm" % Distance)
+        print("Distance1 : %.1f cm" % Distance1)
 
-        GPIO.output(pinTrigger1, True)
+        return(Distance1)
+
+    def get_values2(self):
+        GPIO.output(pinTrigger2, False)
+        GPIO.output(pinTrigger2, True)
         time.sleep(0.00001)
-        GPIO.output(pinTrigger1, False)
+        GPIO.output(pinTrigger2, False)
 
         StartTime = time.time()
 
@@ -78,35 +91,11 @@ try:
                 break
 
         ElapsedTime = StopTime - StartTime
-        Distance = ElapsedTime * 34326 / 2
+        Distance2 = ElapsedTime * 34326 / 2
 
-        print("Distance1 : %.1f cm" % Distance)
+        print("Distance2 : %.1f cm" % Distance2)
 
-        time.sleep(0.5)
-
-except KeyboardInterrupt:
-    GPIO.cleanup()
-
-
-# Define a class containing 3 following sensors 
-class FollowSensor:
-    def __init__(self, pinTrigger1, pinEcho1, pinTrigger2, pinEcho2):
-        self.pinTrigger1 = pinTrigger1
-        self.pinEcho1 = pinEcho1
-        self.pinTrigger2 = pinTrigger2
-        self.pinEcho2 = pinEcho2
-
-        GPIO.setup(self.pinTrigger1, GPIO.OUT)
-        GPIO.setup(self.pinEcho1, GPIO.IN)
-        GPIO.setup(self.pinTrigger2, GPIO.OUT)
-        GPIO.setup(self.pinEcho2, GPIO.IN)
-
-    def get_values(self):
-        left_value = GPIO.input(self.pinTrigger1)
-        middle_value = GPIO.input(self.pinEcho1)
-        right_value = GPIO.input(self.pinTrigger2)
-
-        return (left_value, middle_value, right_value)
+        return(Distance2)
 
 # Define a class that will publish a Twist depending on values from following sensors
 class Braitenberg(rclpy.node.Node):
@@ -126,39 +115,16 @@ class Braitenberg(rclpy.node.Node):
 
     def run(self):
         
-
-
         while rclpy.ok():
-            values = self.sensors.get_values()
-            match values:
-                case (1, 1, 1):
-                    print('Je suis dans le noir !')
-                    self._linear_velocity = 0.0
-                    self._angular_velocity = 0.0
-                case (1, 1, 0):
-                    print('Je derive a fond vers la gauche, a droite toute !')
-                    self._linear_velocity = 1.0
-                    self._angular_velocity = 1.5
-                case (1, 0, 0):
-                    print('Je derive un peu vers la gauche, a droite !')
-                    self._linear_velocity = 1.0
-                    self._angular_velocity = 1.0
-                case (0, 0, 0):
-                    print('On va tout droit !')
-                    self._linear_velocity = 1.5
-                    self._angular_velocity = 0.0
-                case (0, 0, 1):
-                    print('Je derive un peu vers la droite, a gauche !')
-                    self._linear_velocity = 1.0
-                    self._angular_velocity = -1.0
-                case (0, 1, 1):
-                    print('Je derive a fond vers la droite, a gauche toute ! ')
-                    self._linear_velocity = 1.0
-                    self._angular_velocity = -1.5
-                case _:
-                    print('Cas bizarre, je ne sais pas quoi faire !')
-                    self._linear_velocity = 1.0
-                    self._angular_velocity = 0.0
+            if (self.sensors.currentSensor == 0):
+                values1 = self.sensors.get_values1()
+                (self.sensors.currentSensor += 1)%2
+            else:
+                values2 = self.sensors.get_values2()
+                (self.sensors.currentSensor += 1)%2
+
+            self._linear_velocity = 1.0
+            self._angular_velocity = values1 - values2
             
             twist = Twist()
             twist.linear.x = self._linear_velocity
