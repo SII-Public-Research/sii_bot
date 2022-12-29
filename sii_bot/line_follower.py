@@ -72,7 +72,7 @@ class LineFollower(rclpy.node.Node):
                 case (0, 0, 1):
                     print('Je derive a fond vers la gauche, a droite toute !')
                     self._linear_velocity = 0.0
-                    self._angular_velocity = 2.0
+                    self._angular_velocity = 1.5
                 case (0, 1, 1):
                     print('Je derive un peu vers la gauche, a droite !')
                     self._linear_velocity = 0.0
@@ -80,11 +80,11 @@ class LineFollower(rclpy.node.Node):
                 case (1, 1, 1):
                     print('Je suis de travers !')
                     self._linear_velocity = 0.0
-                    self._angular_velocity = 0.5
+                    self._angular_velocity = 2.0
                 case (1, 1, 0):
                     print('Je derive un peu vers la droite, a gauche !')
                     self._linear_velocity = 0.0
-                    self._angular_velocity = -2.0
+                    self._angular_velocity = -1.5
                 case (1, 0, 0):
                     print('Je derive a fond vers la droite, a gauche toute ! ')
                     self._linear_velocity = 0.0
